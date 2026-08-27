@@ -6,9 +6,9 @@ set -euo pipefail
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 log() { echo -e "${BLUE}[KERNEL-HARDEN]${NC} $1"; }
-info() { echo -e "${GREEN}[PASS]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+info() { echo -e "${GREEN}${NC} $1"; }
+warn() { echo -e "${YELLOW}${NC} $1"; }
+error() { echo -e "${RED}${NC} $1"; exit 1; }
 
 SYSCTL_CONF="/etc/sysctl.d/99-kernel-security.conf"
 MODPROBE_CONF="/etc/modprobe.d/security-blacklist.conf"
@@ -16,84 +16,84 @@ BACKUP_DIR="/var/backups/kernel-hardening-$(date +%Y%m%d-%H%M%S)"
 LOG_FILE="/var/log/kernel-hardening-$(date +%Y%m%d-%H%M%S).log"
 
 if [[ $EUID -ne 0 ]]; then
-    error "This script must be run as root (sudo)"
+ error "This script must be run as root (sudo)"
 fi
 
 # Audit Mode
 audit_kernel() {
-    log "Auditing current kernel hardening posture..."
-    echo "=========================================="
-    echo "1. Kernel Pointer Leaks & ASLR"
-    echo "------------------------------------------"
-    echo -n "kptr_restrict (should be >= 1): "
-    sysctl kernel.kptr_restrict 2>/dev/null || cat /proc/sys/kernel/kptr_restrict
-    echo -n "dmesg_restrict (should be == 1): "
-    sysctl kernel.dmesg_restrict 2>/dev/null || cat /proc/sys/kernel/dmesg_restrict
-    echo -n "Randomize VA space (ASLR, should be == 2): "
-    sysctl kernel.randomize_va_space 2>/dev/null || cat /proc/sys/kernel/randomize_va_space
+ log "Auditing current kernel hardening posture..."
+ echo "=========================================="
+ echo "1. Kernel Pointer Leaks & ASLR"
+ echo "------------------------------------------"
+ echo -n "kptr_restrict (should be >= 1): "
+ sysctl kernel.kptr_restrict 2>/dev/null || cat /proc/sys/kernel/kptr_restrict
+ echo -n "dmesg_restrict (should be == 1): "
+ sysctl kernel.dmesg_restrict 2>/dev/null || cat /proc/sys/kernel/dmesg_restrict
+ echo -n "Randomize VA space (ASLR, should be == 2): "
+ sysctl kernel.randomize_va_space 2>/dev/null || cat /proc/sys/kernel/randomize_va_space
 
-    echo -e "\n2. Network & Spoofing Protections"
-    echo "------------------------------------------"
-    echo -n "Reverse Path Filtering (rp_filter, should be 1): "
-    sysctl net.ipv4.conf.all.rp_filter 2>/dev/null || echo "N/A"
-    echo -n "TCP SYN Cookies: "
-    sysctl net.ipv4.tcp_syncookies 2>/dev/null || echo "N/A"
-    echo -n "Accept Source Route: "
-    sysctl net.ipv4.conf.all.accept_source_route 2>/dev/null || echo "N/A"
-    echo -n "Accept Redirects: "
-    sysctl net.ipv4.conf.all.accept_redirects 2>/dev/null || echo "N/A"
+ echo -e "\n2. Network & Spoofing Protections"
+ echo "------------------------------------------"
+ echo -n "Reverse Path Filtering (rp_filter, should be 1): "
+ sysctl net.ipv4.conf.all.rp_filter 2>/dev/null || echo "N/A"
+ echo -n "TCP SYN Cookies: "
+ sysctl net.ipv4.tcp_syncookies 2>/dev/null || echo "N/A"
+ echo -n "Accept Source Route: "
+ sysctl net.ipv4.conf.all.accept_source_route 2>/dev/null || echo "N/A"
+ echo -n "Accept Redirects: "
+ sysctl net.ipv4.conf.all.accept_redirects 2>/dev/null || echo "N/A"
 
-    echo -e "\n3. Memory & Core Dumps"
-    echo "------------------------------------------"
-    echo -n "Protected Symlinks/Hardlinks: "
-    sysctl fs.protected_symlinks 2>/dev/null || echo "N/A"
-    sysctl fs.protected_hardlinks 2>/dev/null || echo "N/A"
-    echo -n "Core Dump SUID protection: "
-    sysctl fs.suid_dumpable 2>/dev/null || echo "N/A"
+ echo -e "\n3. Memory & Core Dumps"
+ echo "------------------------------------------"
+ echo -n "Protected Symlinks/Hardlinks: "
+ sysctl fs.protected_symlinks 2>/dev/null || echo "N/A"
+ sysctl fs.protected_hardlinks 2>/dev/null || echo "N/A"
+ echo -n "Core Dump SUID protection: "
+ sysctl fs.suid_dumpable 2>/dev/null || echo "N/A"
 
-    echo -e "\n4. Filesystem & Kernel Modules Blacklist"
-    echo "------------------------------------------"
-    for mod in cramfs freevxfs jffs2 hfs hfsplus squashfs udf usb-storage bluetooth; do
-        if lsmod | grep -q "^$mod "; then
-            echo "Module $mod: LOADED (Warning: Recommended to blacklist if unused)"
-        else
-            echo "Module $mod: Not loaded"
-        fi
-    done
-    echo "=========================================="
+ echo -e "\n4. Filesystem & Kernel Modules Blacklist"
+ echo "------------------------------------------"
+ for mod in cramfs freevxfs jffs2 hfs hfsplus squashfs udf usb-storage bluetooth; do
+ if lsmod | grep -q "^$mod "; then
+ echo "Module $mod: LOADED (Warning: Recommended to blacklist if unused)"
+ else
+ echo "Module $mod: Not loaded"
+ fi
+ done
+ echo "=========================================="
 }
 
 # Rollback Mode
 rollback_hardening() {
-    log "Rolling back kernel security hardening..."
-    if [ -d "/var/backups" ]; then
-        LATEST_BACKUP=$(ls -td /var/backups/kernel-hardening-* 2>/dev/null | head -1 || true)
-        if [ -n "$LATEST_BACKUP" ] && [ -f "$LATEST_BACKUP/99-kernel-security.conf" ]; then
-            cp "$LATEST_BACKUP/99-kernel-security.conf" "$SYSCTL_CONF"
-            sysctl --system
-            info "Restored sysctl configuration from $LATEST_BACKUP"
-        else
-            warn "No valid backup found to restore sysctl."
-        fi
-        if [ -f "$LATEST_BACKUP/security-blacklist.conf" ]; then
-            cp "$LATEST_BACKUP/security-blacklist.conf" "$MODPROBE_CONF"
-            info "Restored modprobe blacklist from $LATEST_BACKUP"
-        fi
-    else
-        error "No backup directory found."
-    fi
-    info "Rollback completed."
+ log "Rolling back kernel security hardening..."
+ if [ -d "/var/backups" ]; then
+ LATEST_BACKUP=$(ls -td /var/backups/kernel-hardening-* 2>/dev/null | head -1 || true)
+ if [ -n "$LATEST_BACKUP" ] && [ -f "$LATEST_BACKUP/99-kernel-security.conf" ]; then
+ cp "$LATEST_BACKUP/99-kernel-security.conf" "$SYSCTL_CONF"
+ sysctl --system
+ info "Restored sysctl configuration from $LATEST_BACKUP"
+ else
+ warn "No valid backup found to restore sysctl."
+ fi
+ if [ -f "$LATEST_BACKUP/security-blacklist.conf" ]; then
+ cp "$LATEST_BACKUP/security-blacklist.conf" "$MODPROBE_CONF"
+ info "Restored modprobe blacklist from $LATEST_BACKUP"
+ fi
+ else
+ error "No backup directory found."
+ fi
+ info "Rollback completed."
 }
 
 # Apply Mode
 apply_hardening() {
-    mkdir -p "$BACKUP_DIR"
-    log "Backing up existing configurations to $BACKUP_DIR..."
-    [ -f "$SYSCTL_CONF" ] && cp "$SYSCTL_CONF" "$BACKUP_DIR/"
-    [ -f "$MODPROBE_CONF" ] && cp "$MODPROBE_CONF" "$BACKUP_DIR/"
+ mkdir -p "$BACKUP_DIR"
+ log "Backing up existing configurations to $BACKUP_DIR..."
+ [ -f "$SYSCTL_CONF" ] && cp "$SYSCTL_CONF" "$BACKUP_DIR/"
+ [ -f "$MODPROBE_CONF" ] && cp "$MODPROBE_CONF" "$BACKUP_DIR/"
 
-    log "Applying hardened sysctl parameters..."
-    cat > "$SYSCTL_CONF" << 'EOF'
+ log "Applying hardened sysctl parameters..."
+ cat > "$SYSCTL_CONF" << 'EOF'
 # ==========================================
 # KERNEL SECURITY HARDENING PARAMETERS
 # ==========================================
@@ -175,11 +175,11 @@ net.ipv6.conf.all.use_tempaddr = 2
 net.ipv6.conf.default.use_tempaddr = 2
 EOF
 
-    sysctl --system >/dev/null 2>&1
-    info "Sysctl security parameters applied successfully."
+ sysctl --system >/dev/null 2>&1
+ info "Sysctl security parameters applied successfully."
 
-    log "Blacklisting uncommon or risky filesystems and kernel modules..."
-    cat > "$MODPROBE_CONF" << 'EOF'
+ log "Blacklisting uncommon or risky filesystems and kernel modules..."
+ cat > "$MODPROBE_CONF" << 'EOF'
 # Disable uncommon and legacy filesystems to reduce kernel attack surface
 install cramfs /bin/true
 install freevxfs /bin/true
@@ -193,32 +193,32 @@ install firewire-core /bin/true
 install bluetooth /bin/true
 install btusb /bin/true
 EOF
-    info "Module blacklist configuration written."
+ info "Module blacklist configuration written."
 
-    log "Checking GRUB configuration for security flags (audit/mitigations)..."
-    if [ -f /etc/default/grub ]; then
-        if ! grep -q "page_alloc.shuffle=1" /etc/default/grub; then
-            warn "Consider adding kernel mitigations to GRUB_CMDLINE_LINUX (e.g., slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1)"
-        fi
-    fi
+ log "Checking GRUB configuration for security flags (audit/mitigations)..."
+ if [ -f /etc/default/grub ]; then
+ if ! grep -q "page_alloc.shuffle=1" /etc/default/grub; then
+ warn "Consider adding kernel mitigations to GRUB_CMDLINE_LINUX (e.g., slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1)"
+ fi
+ fi
 
-    info "Kernel security hardening successfully applied!"
-    log "Backup stored in: $BACKUP_DIR"
+ info "Kernel security hardening successfully applied!"
+ log "Backup stored in: $BACKUP_DIR"
 }
 
 # Main Dispatcher
 case "${1:---apply}" in
-    --apply)
-        apply_hardening
-        ;;
-    --audit)
-        audit_kernel
-        ;;
-    --rollback)
-        rollback_hardening
-        ;;
-    *)
-        echo "Usage: sudo bash kernel-hardening.sh [--apply | --audit | --rollback]"
-        exit 1
-        ;;
+ --apply)
+ apply_hardening
+ ;;
+ --audit)
+ audit_kernel
+ ;;
+ --rollback)
+ rollback_hardening
+ ;;
+ *)
+ echo "Usage: sudo bash kernel-hardening.sh [--apply | --audit | --rollback]"
+ exit 1
+ ;;
 esac
