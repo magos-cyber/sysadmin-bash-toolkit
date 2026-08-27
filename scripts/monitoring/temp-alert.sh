@@ -34,14 +34,14 @@ get_cpu_temp() {
 send_alert() {
     local temp=$1
     local message
-    message="🌡️ <b>High CPU Temperature!</b>
+    message="[TEMP] <b>High CPU Temperature!</b>
     
 Temperature: <b>${temp}°C</b>
 Threshold: ${TEMP_THRESHOLD}°C
 Server: $(hostname)
 Time: $(date '+%Y-%m-%d %H:%M:%S')
 
-⚠️ Check your cooling system!"
+[WARNING] Check your cooling system!"
     
     curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
         -d "chat_id=${CHAT_ID}" \
@@ -53,7 +53,7 @@ Time: $(date '+%Y-%m-%d %H:%M:%S')
 send_recovery() {
     local temp=$1
     local message
-    message="✅ <b>Temperature Normal</b>
+    message="[OK] <b>Temperature Normal</b>
     
 Temperature: <b>${temp}°C</b>
 Server: $(hostname)

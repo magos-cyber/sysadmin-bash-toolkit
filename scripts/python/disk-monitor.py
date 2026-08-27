@@ -108,16 +108,16 @@ def main():
         usage = get_disk_usage(path)
         
         if "error" in usage:
-            status_lines.append(f"⚠️ {path}: Error - {usage['error']}")
+            status_lines.append(f"[WARNING] {path}: Error - {usage['error']}")
             continue
 
         # Determine status
         if usage["percent"] >= config["thresholds"]["critical"]:
-            status = "🔴 CRITICAL"
+            status = "[RED] CRITICAL"
             alert_key = f"{path}_critical"
             if state.get(alert_key) != "critical":
                 alerts.append(
-                    f"🔴 <b>CRITICAL</b> - {path}\n"
+                    f"[RED] <b>CRITICAL</b> - {path}\n"
                     f"   {usage['percent']}% in use\n"
                     f"   {usage['free_gb']}GB free of {usage['total_gb']}GB"
                 )
@@ -126,11 +126,11 @@ def main():
                 new_state[alert_key] = "critical"
                 
         elif usage["percent"] >= config["thresholds"]["warning"]:
-            status = "🟡 WARNING"
+            status = "[YELLOW] WARNING"
             alert_key = f"{path}_warning"
             if state.get(alert_key) != "warning":
                 alerts.append(
-                    f"🟡 <b>WARNING</b> - {path}\n"
+                    f"[YELLOW] <b>WARNING</b> - {path}\n"
                     f"   {usage['percent']}% in use\n"
                     f"   {usage['free_gb']}GB free of {usage['total_gb']}GB"
                 )
@@ -138,7 +138,7 @@ def main():
             else:
                 new_state[alert_key] = "warning"
         else:
-            status = "🟢 OK"
+            status = "[GREEN] OK"
             # Clear state if recovered
             new_state[f"{path}_critical"] = "ok"
             new_state[f"{path}_warning"] = "ok"
@@ -149,7 +149,7 @@ def main():
         )
 
     # Build report
-    report = f"📊 <b>Disk Monitor</b> - {timestamp}\n\n"
+    report = f"[CHART] <b>Disk Monitor</b> - {timestamp}\n\n"
     report += "\n".join(status_lines)
 
     # Log report
@@ -161,9 +161,9 @@ def main():
 
     # Send alerts if any
     if alerts:
-        alert_msg = f"🚨 <b>Disk Alert!</b>\n\n" + "\n\n".join(alerts)
+        alert_msg = f"[ALERT] <b>Disk Alert!</b>\n\n" + "\n\n".join(alerts)
         send_telegram_alert(alert_msg, config)
-        print(f"\n📤 Sent {len(alerts)} alerts")
+        print(f"\n[OUTBOX] Sent {len(alerts)} alerts")
 
     # Save state
     save_state(new_state, config["state_file"])

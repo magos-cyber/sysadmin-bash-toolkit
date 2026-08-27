@@ -2,39 +2,39 @@
 
 Sysadmin Bash toolkit — server hardening, monitoring, backup automation, log management, and daily ops scripts. All scripts are production-ready with proper error handling and logging.
 
-## 📁 Structure
+## [FOLDER] Structure
 
 ```
 sysadmin-bash-toolkit/
-├── scripts/
-│   ├── bash/
-│   │   ├── server-setup.sh       # Initial server hardening
-│   │   ├── docker-install.sh     # Install Docker & Compose
-│   │   ├── auto-update.sh        # Auto-update Docker stacks
-│   │   ├── vpn-setup.sh          # WireGuard VPN server
-│   │   ├── backup-automator.sh   # Rotating backups
-│   │   ├── security-hardening.sh # UFW + Fail2Ban + sysctl
-│   │   ├── hass-backup.sh        # Home Assistant backup
-│   │   ├── hass-update.sh        # Home Assistant update
-│   │   ├── kernel-update.sh      # Safe kernel update with backup/rollback
-│   │   ├── security-scanner.sh   # Automated security scanning (lynis-style)
-│   │   ├── performance-monitor.sh # Continuous performance monitoring with alerts
-│   │   ├── kernel-hardening.sh   # Comprehensive kernel security hardening (sysctl, modules, GRUB)
-│   │   ├── container-security.sh # Docker/Podman security scanning & hardening audit
-│   │   ├── log-forensics.sh      # Log analysis & forensics for incident response
-│   │   └── compliance-check.sh   # CIS benchmark compliance checker
-│   ├── monitoring/
-│   │   └── temp-alert.sh         # CPU temperature alerts
-│   └── python/
-│       ├── disk-monitor.py       # Disk usage monitor
-│       └── port-scanner.py       # TCP port scanner
-├── config/
-│   └── systemd/                  # Systemd service files
-└── docs/
-    └── guides/                   # How-to guides
++-- scripts/
+|   +-- bash/
+|   |   +-- server-setup.sh       # Initial server hardening
+|   |   +-- docker-install.sh     # Install Docker & Compose
+|   |   +-- auto-update.sh        # Auto-update Docker stacks
+|   |   +-- vpn-setup.sh          # WireGuard VPN server
+|   |   +-- backup-automator.sh   # Rotating backups
+|   |   +-- security-hardening.sh # UFW + Fail2Ban + sysctl
+|   |   +-- hass-backup.sh        # Home Assistant backup
+|   |   +-- hass-update.sh        # Home Assistant update
+|   |   +-- kernel-update.sh      # Safe kernel update with backup/rollback
+|   |   +-- security-scanner.sh   # Automated security scanning (lynis-style)
+|   |   +-- performance-monitor.sh # Continuous performance monitoring with alerts
+|   |   +-- kernel-hardening.sh   # Comprehensive kernel security hardening (sysctl, modules, GRUB)
+|   |   +-- container-security.sh # Docker/Podman security scanning & hardening audit
+|   |   +-- log-forensics.sh      # Log analysis & forensics for incident response
+|   |   `-- compliance-check.sh   # CIS benchmark compliance checker
+|   +-- monitoring/
+|   |   `-- temp-alert.sh         # CPU temperature alerts
+|   `-- python/
+|       +-- disk-monitor.py       # Disk usage monitor
+|       `-- port-scanner.py       # TCP port scanner
++-- config/
+|   `-- systemd/                  # Systemd service files
+`-- docs/
+    `-- guides/                   # How-to guides
 ```
 
-## 🚀 Quick Start
+## [ROCKET] Quick Start
 
 ```bash
 # Clone the repo
@@ -48,37 +48,37 @@ chmod +x scripts/bash/*.sh scripts/monitoring/*.sh
 sudo bash scripts/bash/server-setup.sh
 ```
 
-## 📝 Contents
+## [MEMO] Contents
 
-### 🔒 Kernel & Container Security
+### [LOCK] Kernel & Container Security
 - **`scripts/bash/kernel-hardening.sh`** — Comprehensive kernel security hardening (sysctl parameters, module blacklisting, GRUB audit)
 - **`scripts/bash/container-security.sh`** — Docker/Podman security scanning & hardening audit (vulnerability scanning, CIS benchmark checks, daemon configuration)
 - **`scripts/bash/log-forensics.sh`** — Log analysis & forensics tool for incident response (auth analysis, timeline building, IOC extraction, service health)
 - **`scripts/bash/compliance-check.sh`** — CIS benchmark compliance checker (Level 1/2 checks for filesystem, services, SSH, PAM, logging, and more)
 
-### 🔧 Server Setup & Hardening
+### [WRENCH] Server Setup & Hardening
 - **`scripts/bash/server-setup.sh`** — Initial Debian/Ubuntu server hardening (UFW, fail2ban, SSH, auto-updates, user creation)
 - **`scripts/bash/docker-install.sh`** — Install Docker Engine + Compose with sane daemon defaults
 - **`scripts/bash/security-hardening.sh`** — Apply baseline firewall (UFW) + Fail2Ban + sysctl hardening
 - **`scripts/bash/security-scanner.sh`** — Automated security scanning with lynis-style checks, hardening suggestions, and detailed reporting
 
-### 🔄 Automation & Updates
+### [REFRESH] Automation & Updates
 - **`scripts/bash/auto-update.sh`** — Pull & recreate all Docker compose stacks, prune images, health-check services
 - **`scripts/bash/vpn-setup.sh`** — WireGuard VPN server + `wg-add-client.sh` helper for peer configs
 - **`scripts/bash/hass-update.sh`** — Pull latest Home Assistant image and restart container
 - **`scripts/bash/kernel-update.sh`** — Safe kernel update with automatic backup and rollback capability
 
-### 💾 Backup & Monitoring
+### [DISK] Backup & Monitoring
 - **`scripts/bash/backup-automator.sh`** — Rotating `.tar.gz` backups with optional Telegram notify
 - **`scripts/bash/hass-backup.sh`** — Backup Home Assistant configuration (snapshot + rotation)
 - **`scripts/monitoring/temp-alert.sh`** — CPU temperature alerts via Telegram (state-aware)
 - **`scripts/bash/performance-monitor.sh`** — Continuous performance monitoring with customizable thresholds and alerting
 
-### 🐍 Python Utilities
+### [PYTHON] Python Utilities
 - **`scripts/python/disk-monitor.py`** — Disk usage monitor with warning/critical thresholds + Telegram
 - **`scripts/python/port-scanner.py`** — Multi-host TCP port scanner (common homelab ports)
 
-## ⚙️ Configuration
+## [GEAR] Configuration
 
 Most scripts work out of the box. For Telegram alerts, edit the config at the top of each script:
 
@@ -87,7 +87,7 @@ export BOT_TOKEN="your-bot-token"
 export CHAT_ID="your-chat-id"
 ```
 
-## 📝 Examples
+## [MEMO] Examples
 
 ### Harden a new server
 ```bash
@@ -199,14 +199,14 @@ sudo bash scripts/bash/compliance-check.sh --level 2
 sudo bash scripts/bash/compliance-check.sh --level 1 --report
 ```
 
-## 🔒 Security Notes
+## [LOCK] Security Notes
 
 - Always change default passwords
 - Use strong, unique credentials
 - Review scripts before running in production
 - Test in a safe environment first
 
-## 🤝 Contributing
+## [HANDSHAKE] Contributing
 
 Contributions are welcome! Please:
 - Keep scripts in English
@@ -214,6 +214,6 @@ Contributions are welcome! Please:
 - Document all parameters
 - Test before submitting
 
-## 📜 License
+## [SCROLL] License
 
 MIT License — see [LICENSE](LICENSE) for details.

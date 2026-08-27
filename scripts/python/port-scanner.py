@@ -77,7 +77,7 @@ def main():
 
     print(f"\nFound {len(open_results)} open port(s).")
     if args.telegram and open_results:
-        text = "🔍 <b>Port Scan</b>\n" + "\n".join(open_results)
+        text = "[SEARCH] <b>Port Scan</b>\n" + "\n".join(open_results)
         data = urllib.parse.urlencode({
             "chat_id": args.chat_id, "text": text, "parse_mode": "HTML"
         }).encode()

@@ -52,10 +52,10 @@ for dir in "${COMPOSE_DIRS[@]}"; do
         if docker compose pull 2>/dev/null; then
             docker compose up -d --remove-orphans
             ((UPDATED++)) || true
-            log "  ✓ Updated: $dir"
+            log "  [OK] Updated: $dir"
         else
             ((FAILED++)) || true
-            warn "  ✗ Failed: $dir"
+            warn "  [FAIL] Failed: $dir"
         fi
     fi
 done
@@ -88,7 +88,7 @@ for dir in "${COMPOSE_DIRS[@]}"; do
         cd "$dir"
         UNHEALTHY=$(docker compose ps --format json 2>/dev/null | grep -c "unhealthy" || true)
         if [[ "$UNHEALTHY" -gt 0 ]]; then
-            warn "  ✗ $dir: $UNHEALTHY unhealthy containers"
+            warn "  [FAIL] $dir: $UNHEALTHY unhealthy containers"
             ((SERVICES_FAIL++)) || true
         else
             ((SERVICES_OK++)) || true

@@ -38,7 +38,7 @@ if gzip -t "$ARCHIVE" 2>/dev/null; then log "Integrity OK"; else warn "Integrity
 
 if [[ "$NOTIFY_TELEGRAM" == true ]]; then
   SIZE=$(du -h "$ARCHIVE" | cut -f1)
-  MSG="💾 <b>Backup done</b>%0AFile: $ARCHIVE%0ASize: $SIZE%0ARetention: ${RETENTION_DAYS}d"
+  MSG="[DISK] <b>Backup done</b>%0AFile: $ARCHIVE%0ASize: $SIZE%0ARetention: ${RETENTION_DAYS}d"
   curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
     -d "chat_id=${CHAT_ID}" -d "text=${MSG}" -d "parse_mode=HTML" >/dev/null 2>&1
 fi
