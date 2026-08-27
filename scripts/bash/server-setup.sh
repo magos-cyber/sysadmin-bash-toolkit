@@ -10,13 +10,13 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-log() { echo -e "${GREEN}[INFO]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+log() { echo -e "${GREEN}${NC} $1"; }
+warn() { echo -e "${YELLOW}${NC} $1"; }
+error() { echo -e "${RED}${NC} $1"; exit 1; }
 
 # Check root
 if [[ $EUID -ne 0 ]]; then
-   error "This script must be run as root (sudo)"
+ error "This script must be run as root (sudo)"
 fi
 
 log "Starting server setup..."
@@ -28,23 +28,23 @@ apt-get update && apt-get upgrade -y
 # 2. Install basic packages
 log "Installing basic packages..."
 apt-get install -y \
-    curl \
-    wget \
-    git \
-    vim \
-    htop \
-    iotop \
-    net-tools \
-    unzip \
-    software-properties-common \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    fail2ban \
-    ufw \
-    unattended-upgrades \
-    logrotate
+ curl \
+ wget \
+ git \
+ vim \
+ htop \
+ iotop \
+ net-tools \
+ unzip \
+ software-properties-common \
+ apt-transport-https \
+ ca-certificates \
+ gnupg \
+ lsb-release \
+ fail2ban \
+ ufw \
+ unattended-upgrades \
+ logrotate
 
 # 3. Set timezone
 log "Setting timezone to Europe/Athens..."
@@ -59,12 +59,12 @@ log "Hostname set: $HOSTNAME"
 # 5. Create non-root user
 read -rp "Enter username for new user (e.g. admin): " USERNAME
 if id "$USERNAME" &>/dev/null; then
-    warn "User $USERNAME already exists, skipping..."
+ warn "User $USERNAME already exists, skipping..."
 else
-    adduser --gecos "" "$USERNAME"
-    usermod -aG sudo "$USERNAME"
-    usermod -aG docker "$USERNAME" 2>/dev/null || true
-    log "User $USERNAME created and added to sudo group"
+ adduser --gecos "" "$USERNAME"
+ usermod -aG sudo "$USERNAME"
+ usermod -aG docker "$USERNAME" 2>/dev/null || true
+ log "User $USERNAME created and added to sudo group"
 fi
 
 # 6. SSH hardening
@@ -87,7 +87,7 @@ log "UFW firewall enabled"
 # 8. Configure fail2ban
 log "Configuring fail2ban..."
 cat > /etc/fail2ban/jail.local << 'EOF'
-[DEFAULT]
+
 bantime = 3600
 findtime = 600
 maxretry = 3
@@ -106,7 +106,7 @@ log "Fail2ban enabled"
 log "Enabling automatic security updates..."
 cat > /etc/apt/apt.conf.d/50unattended-upgrades << 'EOF'
 Unattended-Upgrade::Allowed-Origins {
-    "${distro_id}:${distro_codename}-security";
+ "${distro_id}:${distro_codename}-security";
 };
 Unattended-Upgrade::AutoFixInterruptedDpkg "true";
 Unattended-Upgrade::MinimalSteps "true";
@@ -118,13 +118,13 @@ EOF
 log "Configuring logrotate..."
 cat > /etc/logrotate.d/homelab-custom << 'EOF'
 /var/log/homelab/*.log {
-    daily
-    missingok
-    rotate 14
-    compress
-    delaycompress
-    notifempty
-    create 0640 root adm
+ daily
+ missingok
+ rotate 14
+ compress
+ delaycompress
+ notifempty
+ create 0640 root adm
 }
 EOF
 
@@ -132,13 +132,13 @@ log "=========================================="
 log "Setup completed successfully!"
 log "=========================================="
 log "Important notes:"
-log "  • SSH: Key-based auth only (no password)"
-log "  • Root login: Disabled"
-log "  • Firewall: UFW active"
-log "  • Fail2ban: SSH brute-force protection"
-log "  • Auto-updates: Security patches automatically"
+log " • SSH: Key-based auth only (no password)"
+log " • Root login: Disabled"
+log " • Firewall: UFW active"
+log " • Fail2ban: SSH brute-force protection"
+log " • Auto-updates: Security patches automatically"
 log ""
 log "Next steps:"
-log "  1. Upload your public key to the new user: ~/.ssh/authorized_keys"
-log "  2. Run docker-install.sh"
-log "  3. Configure monitoring"
+log " 1. Upload your public key to the new user: ~/.ssh/authorized_keys"
+log " 2. Run docker-install.sh"
+log " 3. Configure monitoring"
