@@ -18,7 +18,11 @@ sysadmin-bash-toolkit/
 │   │   ├── hass-update.sh        # Home Assistant update
 │   │   ├── kernel-update.sh      # Safe kernel update with backup/rollback
 │   │   ├── security-scanner.sh   # Automated security scanning (lynis-style)
-│   │   └── performance-monitor.sh # Continuous performance monitoring with alerts
+│   │   ├── performance-monitor.sh # Continuous performance monitoring with alerts
+│   │   ├── kernel-hardening.sh   # Comprehensive kernel security hardening (sysctl, modules, GRUB)
+│   │   ├── container-security.sh # Docker/Podman security scanning & hardening audit
+│   │   ├── log-forensics.sh      # Log analysis & forensics for incident response
+│   │   └── compliance-check.sh   # CIS benchmark compliance checker
 │   ├── monitoring/
 │   │   └── temp-alert.sh         # CPU temperature alerts
 │   └── python/
@@ -45,6 +49,12 @@ sudo bash scripts/bash/server-setup.sh
 ```
 
 ## 📝 Contents
+
+### 🔒 Kernel & Container Security
+- **`scripts/bash/kernel-hardening.sh`** — Comprehensive kernel security hardening (sysctl parameters, module blacklisting, GRUB audit)
+- **`scripts/bash/container-security.sh`** — Docker/Podman security scanning & hardening audit (vulnerability scanning, CIS benchmark checks, daemon configuration)
+- **`scripts/bash/log-forensics.sh`** — Log analysis & forensics tool for incident response (auth analysis, timeline building, IOC extraction, service health)
+- **`scripts/bash/compliance-check.sh`** — CIS benchmark compliance checker (Level 1/2 checks for filesystem, services, SSH, PAM, logging, and more)
 
 ### 🔧 Server Setup & Hardening
 - **`scripts/bash/server-setup.sh`** — Initial Debian/Ubuntu server hardening (UFW, fail2ban, SSH, auto-updates, user creation)
@@ -136,6 +146,57 @@ sudo bash scripts/bash/performance-monitor.sh --interval 60 --cpu-threshold 75 -
 ```bash
 # Run for 2 hours then stop
 sudo bash scripts/bash/performance-monitor.sh --duration 2
+```
+
+### Kernel Hardening
+```bash
+# Audit current kernel security posture
+sudo bash scripts/bash/kernel-hardening.sh --audit
+
+# Apply kernel hardening protections
+sudo bash scripts/bash/kernel-hardening.sh --apply
+
+# Rollback to previous configuration
+sudo bash scripts/bash/kernel-hardening.sh --rollback
+```
+
+### Container Security
+```bash
+# Scan container images for vulnerabilities
+sudo bash scripts/bash/container-security.sh --scan
+
+# Audit running containers and daemon configuration
+sudo bash scripts/bash/container-security.sh --audit
+
+# Run host/daemon benchmark checks
+sudo bash scripts/bash/container-security.sh --benchmark
+```
+
+### Log Forensics
+```bash
+# Analyze authentication and SSH events
+sudo bash scripts/bash/log-forensics.sh --analyze
+
+# Build chronological event timeline
+sudo bash scripts/bash/log-forensics.sh --timeline
+
+# Extract Indicators of Compromise
+sudo bash scripts/bash/log-forensics.sh --ioc
+
+# Generate full forensics report
+sudo bash scripts/bash/log-forensics.sh --report
+```
+
+### Compliance Checking
+```bash
+# Run CIS Level 1 compliance check (basic)
+sudo bash scripts/bash/compliance-check.sh --level 1
+
+# Run CIS Level 2 compliance check (strict)
+sudo bash scripts/bash/compliance-check.sh --level 2
+
+# Generate compliance report
+sudo bash scripts/bash/compliance-check.sh --level 1 --report
 ```
 
 ## 🔒 Security Notes
