@@ -14,8 +14,8 @@ NOTIFY_TELEGRAM="${NOTIFY_TELEGRAM:-false}"
 BOT_TOKEN="${BOT_TOKEN:-YOUR_BOT_TOKEN}"
 CHAT_ID="${CHAT_ID:-YOUR_CHAT_ID}"
 
-log() { echo "[$(date '+%Y-%m-%d %H:%M')] [INFO] $1"; }
-warn() { echo "[$(date '+%Y-%m-%d %H:%M')] [WARN] $1"; }
+log() { echo "[$(date '+%Y-%m-%d %H:%M')] $1"; }
+warn() { echo "[$(date '+%Y-%m-%d %H:%M')] $1"; }
 
 mkdir -p "$BACKUP_DIR"
 
@@ -24,9 +24,9 @@ ARCHIVE="$BACKUP_DIR/${PREFIX}-${TS}.tar.gz"
 
 log "Starting backup -> $ARCHIVE"
 if tar -czf "$ARCHIVE" "${SRC_DIRS[@]}" 2>/dev/null; then
-    log "Archive created ($(du -h "$ARCHIVE" | cut -f1))"
+ log "Archive created ($(du -h "$ARCHIVE" | cut -f1))"
 else
-    warn "tar finished with warnings"
+ warn "tar finished with warnings"
 fi
 
 # Rotation
@@ -37,10 +37,10 @@ log "Rotated (deleted > ${RETENTION_DAYS}d): $DELETED"
 if gzip -t "$ARCHIVE" 2>/dev/null; then log "Integrity OK"; else warn "Integrity FAILED for $ARCHIVE"; fi
 
 if [[ "$NOTIFY_TELEGRAM" == true ]]; then
-  SIZE=$(du -h "$ARCHIVE" | cut -f1)
-  MSG="[DISK] <b>Backup done</b>%0AFile: $ARCHIVE%0ASize: $SIZE%0ARetention: ${RETENTION_DAYS}d"
-  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-    -d "chat_id=${CHAT_ID}" -d "text=${MSG}" -d "parse_mode=HTML" >/dev/null 2>&1
+ SIZE=$(du -h "$ARCHIVE" | cut -f1)
+ MSG=" <b>Backup done</b>%0AFile: $ARCHIVE%0ASize: $SIZE%0ARetention: ${RETENTION_DAYS}d"
+ curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+ -d "chat_id=${CHAT_ID}" -d "text=${MSG}" -d "parse_mode=HTML" >/dev/null 2>&1
 fi
 
 log "Backup complete."
