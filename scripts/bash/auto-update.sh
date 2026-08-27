@@ -21,9 +21,9 @@ mkdir -p /var/log/homelab
 
 INCLUDE_SYSTEM=false
 for arg in "$@"; do
-    case $arg in
-        --include-system) INCLUDE_SYSTEM=true ;;
-    esac
+ case $arg in
+ --include-system) INCLUDE_SYSTEM=true ;;
+ esac
 done
 
 log "=========================================="
@@ -34,30 +34,30 @@ log "=========================================="
 log "Checking for new Docker images..."
 
 COMPOSE_DIRS=(
-    "/opt/stacks/media"
-    "/opt/stacks/monitoring"
-    "/opt/stacks/network"
-    "/opt/stacks/utils"
+ "/opt/stacks/media"
+ "/opt/stacks/monitoring"
+ "/opt/stacks/network"
+ "/opt/stacks/utils"
 )
 
 UPDATED=0
 FAILED=0
 
 for dir in "${COMPOSE_DIRS[@]}"; do
-    if [[ -d "$dir" ]]; then
-        info "Processing: $dir"
-        cd "$dir"
-        
-        # Pull new images
-        if docker compose pull 2>/dev/null; then
-            docker compose up -d --remove-orphans
-            ((UPDATED++)) || true
-            log "  [OK] Updated: $dir"
-        else
-            ((FAILED++)) || true
-            warn "  [FAIL] Failed: $dir"
-        fi
-    fi
+ if [[ -d "$dir" ]]; then
+ info "Processing: $dir"
+ cd "$dir"
+ 
+ # Pull new images
+ if docker compose pull 2>/dev/null; then
+ docker compose up -d --remove-orphans
+ ((UPDATED++)) || true
+ log " Updated: $dir"
+ else
+ ((FAILED++)) || true
+ warn " Failed: $dir"
+ fi
+ fi
 done
 
 # 2. Cleanup old images
@@ -66,16 +66,16 @@ docker image prune -af --filter "until=168h" 2>/dev/null || true
 
 # 3. System update (optional)
 if [[ "$INCLUDE_SYSTEM" == true ]]; then
-    log "Updating system..."
-    apt-get update
-    apt-get upgrade -y
-    apt-get autoremove -y
-    apt-get autoclean
+ log "Updating system..."
+ apt-get update
+ apt-get upgrade -y
+ apt-get autoremove -y
+ apt-get autoclean
 fi
 
 # 4. Check for reboot
 if [[ -f /var/run/reboot-required ]]; then
-    warn "Reboot required! Run: sudo reboot"
+ warn "Reboot required! Run: sudo reboot"
 fi
 
 # 5. Health check
@@ -84,25 +84,25 @@ SERVICES_OK=0
 SERVICES_FAIL=0
 
 for dir in "${COMPOSE_DIRS[@]}"; do
-    if [[ -d "$dir" ]]; then
-        cd "$dir"
-        UNHEALTHY=$(docker compose ps --format json 2>/dev/null | grep -c "unhealthy" || true)
-        if [[ "$UNHEALTHY" -gt 0 ]]; then
-            warn "  [FAIL] $dir: $UNHEALTHY unhealthy containers"
-            ((SERVICES_FAIL++)) || true
-        else
-            ((SERVICES_OK++)) || true
-        fi
-    fi
+ if [[ -d "$dir" ]]; then
+ cd "$dir"
+ UNHEALTHY=$(docker compose ps --format json 2>/dev/null | grep -c "unhealthy" || true)
+ if [[ "$UNHEALTHY" -gt 0 ]]; then
+ warn " $dir: $UNHEALTHY unhealthy containers"
+ ((SERVICES_FAIL++)) || true
+ else
+ ((SERVICES_OK++)) || true
+ fi
+ fi
 done
 
 log "=========================================="
 log "Auto-update complete!"
 log "=========================================="
 log "Results:"
-log "  • Updated stacks: $UPDATED"
-log "  • Failed: $FAILED"
-log "  • Healthy services: $SERVICES_OK"
-log "  • Unhealthy: $SERVICES_FAIL"
+log " • Updated stacks: $UPDATED"
+log " • Failed: $FAILED"
+log " • Healthy services: $SERVICES_OK"
+log " • Unhealthy: $SERVICES_FAIL"
 log ""
 log "Log: /var/log/homelab/auto-update.log"
