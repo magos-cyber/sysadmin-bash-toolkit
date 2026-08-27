@@ -6,9 +6,9 @@
 set -euo pipefail
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
-log() { echo -e "${GREEN}[INFO]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+log() { echo -e "${GREEN}${NC} $1"; }
+warn() { echo -e "${YELLOW}${NC} $1"; }
+error() { echo -e "${RED}${NC} $1"; exit 1; }
 
 if [[ $EUID -ne 0 ]]; then error "Run as root (sudo)"; fi
 
@@ -94,6 +94,6 @@ log "=========================================="
 log "WireGuard VPN installed!"
 log "=========================================="
 log "Server public key: $SERVER_PUB"
-log "Add a client:  wg-add-client.sh phone"
-log "Show QR:       cat /etc/wireguard/wg-<name>.conf | qrencode -t ansiutf8"
-log "Status:        wg show"
+log "Add a client: wg-add-client.sh phone"
+log "Show QR: cat /etc/wireguard/wg-<name>.conf | qrencode -t ansiutf8"
+log "Status: wg show"
